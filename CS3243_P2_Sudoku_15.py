@@ -1,13 +1,14 @@
 import sys
 import copy
 
+
 class Sudoku(object):
     def __init__(self, puzzle):
-        self.puzzle = puzzle # self.puzzle is a list of lists
-        self.ans = copy.deepcopy(puzzle) # self.ans is a list of lists
+        self.puzzle = puzzle  # self.puzzle is a list of lists
+        self.ans = copy.deepcopy(puzzle)  # self.ans is a list of lists
 
     def solve(self):
-        self.initialise() 
+        self.initialise()
         self.backtrack(puzzle)
         self.convert_to_output()
         return self.ans
@@ -19,10 +20,20 @@ class Sudoku(object):
         for row in range(9):
             for col in range(9):
                 if self.puzzle[row][col] != 0:
-                    set_values = {puzzle[row][col]}
+                    set_values = set()
+                    set_values.add(puzzle[row][col])
                     puzzle[row][col] = set_values
                 else:
-                    puzzle[row][col] = {1, 2, 3, 4, 5, 6, 7, 8, 9}
+                    puzzle[row][col] = set()
+                    puzzle[row][col].add(1)
+                    puzzle[row][col].add(2)
+                    puzzle[row][col].add(3)
+                    puzzle[row][col].add(4)
+                    puzzle[row][col].add(5)
+                    puzzle[row][col].add(6)
+                    puzzle[row][col].add(7)
+                    puzzle[row][col].add(8)
+                    puzzle[row][col].add(9)
 
     # Converts from values in a set to values for output.
     def convert_to_output(self):
@@ -47,7 +58,8 @@ class Sudoku(object):
         mrv_values = puzzle[mrv_row][mrv_col].copy()
         for value in mrv_values:
             current_puzzle = copy.deepcopy(puzzle)
-            current_puzzle[mrv_row][mrv_col] = {value}
+            current_puzzle[mrv_row][mrv_col] = set()
+            current_puzzle[mrv_row][mrv_col].add(value)
             if self.backtrack(current_puzzle):
                 return True
         return False
@@ -65,18 +77,18 @@ class Sudoku(object):
                     mrv = len(possible_values)
                     mrv_position = (row, col)
         return mrv_position
-                
+
     # Helper function that returns all the cells that are connected (same row / same col / same box) to the given position, as a list.
     def get_connecting_cells_positions(self, puzzle, position):
         row, col = position
-        output = []
-        for col_value in range(9): # Items in same row
+        output = list()
+        for col_value in range(9):  # Items in same row
             if col_value != col:
                 output.append((row, col_value))
-        for row_value in range(9): # Items in same col
+        for row_value in range(9):  # Items in same col
             if row_value != row:
                 output.append((row_value, col))
-        top_row_in_box = int(row / 3) * 3 # Items in the same box
+        top_row_in_box = int(row / 3) * 3  # Items in the same box
         top_col_in_box = int(col / 3) * 3
         for same_box_row_value in range(top_row_in_box, top_row_in_box + 3):
             for same_box_col_value in range(top_col_in_box, top_col_in_box + 3):
@@ -84,11 +96,10 @@ class Sudoku(object):
                     output.append((same_box_row_value, same_box_col_value))
         return output
 
-
     # We will append the position, and if this position's domain is revised, we will add all the connecting cells back into the queue.
     # This continues until the domains of all the cells cannot be reduced anymore.
     def ac3(self, puzzle, position):
-        queue = []
+        queue = list()
         queue.append(position)
         while len(queue) != 0:
             current_position = queue.pop(0)
@@ -97,8 +108,7 @@ class Sudoku(object):
                 for neighbouring_position in connecting_cells_positions:
                     queue.append(neighbouring_position)
         return True
-            
-    
+
     # Check to see if any of the connecting cell's domain consists of only a certain value of the cell we are looking at.
     # If it has, this means that this particular connecting cell's value is fixed.
     # Hence, we know that we can remove this value out of the cell we are looking at, as we cannot assign it that value regardless.
@@ -118,18 +128,18 @@ class Sudoku(object):
             is_revised = True
             puzzle[row][col].remove(value)
         return is_revised
-        
+
 
 if __name__ == "__main__":
     # STRICTLY do NOT modify the code in the main function here
     if len(sys.argv) != 3:
-        print ("\nUsage: python CS3243_P2_Sudoku_XX.py input.txt output.txt\n")
+        print("\nUsage: python CS3243_P2_Sudoku_XX.py input.txt output.txt\n")
         raise ValueError("Wrong number of arguments!")
 
     try:
         f = open(sys.argv[1], 'r')
     except IOError:
-        print ("\nUsage: python CS3243_P2_Sudoku_XX.py input.txt output.txt\n")
+        print("\nUsage: python CS3243_P2_Sudoku_XX.py input.txt output.txt\n")
         raise IOError("Input file not found!")
 
     puzzle = [[0 for i in range(9)] for j in range(9)]
