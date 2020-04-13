@@ -52,6 +52,7 @@ class Sudoku(object):
                 if not self.ac3(puzzle, (row, col)):
                     return False
         mrv_row, mrv_col = self.find_mrv(puzzle)
+        #mrv_row, mrv_col = self.find_mcv(puzzle)
         if mrv_row == -1 and mrv_col == -1:
             self.puzzle = puzzle
             return True
@@ -78,6 +79,31 @@ class Sudoku(object):
                     mrv_position = (row, col)
         return mrv_position
 
+    # In this problem, we are ensured that the puzzle is valid and well-formed.
+    # This heuristic is to find the most constraining variable
+    def find_mcv(self, puzzle):
+        mcv_position = (-1, -1)
+        maximum_neighbours = -1
+        for row in range(9):
+            for col in range(9):
+                if (len(puzzle[row][col]) == 0):
+                    return (row, col)
+                if (len(puzzle[row][col]) != 1):
+                    free_connecting_cell_positions = self.get_empty_connecting_cell_positions(puzzle, (row, col))
+                    if len(free_connecting_cell_positions) > maximum_neighbours:
+                        maximum_neighbours = len(free_connecting_cell_positions)
+                        mcv_position = (row, col)
+        return mcv_position
+
+    # Helper function to return positions of the connecting cells that have not been assigned a value yet.
+    def get_empty_connecting_cell_positions(self, puzzle, position):
+        connecting_cell_positions = self.get_connecting_cells_positions(puzzle, position)
+        final_positions = list()
+        for (row, col) in connecting_cell_positions:
+            if len(puzzle[row][col]) != 1:
+                final_positions.append((row, col))
+        return final_positions
+        
     # Helper function that returns all the cells that are connected (same row / same col / same box) to the given position, as a list.
     def get_connecting_cells_positions(self, puzzle, position):
         row, col = position
