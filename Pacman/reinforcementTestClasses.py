@@ -804,6 +804,11 @@ class GridPolicyTest(testClasses.TestCase):
 
 
     def execute(self, grades, moduleDict, solutionDict):
+        print("helloooo")
+        print(len(moduleDict))
+        for k, v in moduleDict.iteritems():
+            print(k, v)
+
         if not hasattr(moduleDict['analysis'], self.parameterFn):
             self.addMessage('Method not implemented: analysis.%s' % (self.parameterFn,))
             return self.testFail(grades)
