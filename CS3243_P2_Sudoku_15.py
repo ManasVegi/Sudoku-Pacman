@@ -1,5 +1,6 @@
 import sys
 import copy
+import time
 
 
 class Sudoku(object):
@@ -8,9 +9,12 @@ class Sudoku(object):
         self.ans = copy.deepcopy(puzzle)  # self.ans is a list of lists
 
     def solve(self):
+        start = time.clock()
         self.initialise()
         self.backtrack(puzzle)
         self.convert_to_output()
+        end = time.clock()
+        print(end - start)
         return self.ans
 
     # Initialise all the values in the puzzle as a set of values.
@@ -143,14 +147,15 @@ class Sudoku(object):
     # We will append the position, and if this position's domain is revised, we will add all the connecting cells back into the queue.
     # This continues until the domains of all the cells cannot be reduced anymore.
     def ac3(self, puzzle, position):
-        queue = list()
-        queue.append(position)
+        queue = set()
+        queue.add(position)
         while len(queue) != 0:
-            current_position = queue.pop(0)
+            current_position = queue.pop()
             if self.revise(puzzle, current_position):
                 connecting_cells_positions = self.get_connecting_cells_positions(puzzle, current_position)
                 for neighbouring_position in connecting_cells_positions:
-                    queue.append(neighbouring_position)
+                    if neighbouring_position not in queue:
+                        queue.add(neighbouring_position)
         return True
 
     # Check to see if any of the connecting cell's domain consists of only a certain value of the cell we are looking at.
