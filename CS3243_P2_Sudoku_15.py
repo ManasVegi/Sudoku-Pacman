@@ -56,8 +56,10 @@ class Sudoku(object):
         if mrv_row == -1 and mrv_col == -1:
             self.puzzle = puzzle
             return True
-        mrv_values = puzzle[mrv_row][mrv_col].copy()
-        for value in mrv_values:
+
+        ordered_domain_values = self.get_ordered_domain_values((mrv_row, mrv_col), puzzle)
+
+        for value in ordered_domain_values:
             current_puzzle = copy.deepcopy(puzzle)
             current_puzzle[mrv_row][mrv_col] = set()
             current_puzzle[mrv_row][mrv_col].add(value)
@@ -94,6 +96,22 @@ class Sudoku(object):
                         maximum_neighbours = len(free_connecting_cell_positions)
                         mcv_position = (row, col)
         return mcv_position
+
+    # Order the domain values of the variable using the 
+    # least constraining value heuristic.
+    def get_ordered_domain_values(self, position, puzzle):
+        row, col = position
+        possible_values = puzzle[row][col]
+        free_connecting_cell_positions = self.get_empty_connecting_cell_positions(puzzle, position)
+        ordered_value_tuples = []
+        for value in possible_values:
+            num_of_removed_values = 0
+            for (free_row, free_col) in free_connecting_cell_positions:
+                if value in puzzle[free_row][free_col]:
+                    num_of_removed_values += 1
+            ordered_value_tuples.append((value, num_of_removed_values))
+        ordered_value_tuples.sort(key = lambda tup: tup[1])
+        return map(lambda x: x[0], ordered_value_tuples)
 
     # Helper function to return positions of the connecting cells that have not been assigned a value yet.
     def get_empty_connecting_cell_positions(self, puzzle, position):
